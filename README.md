@@ -25,3 +25,7 @@ To use, simply implement the [VFS](https://pkg.go.dev/github.com/psanford/sqlite
 ```
 
 A full example can be found in [sqlite3vfs_test.go](sqlite3vfs_test.go).
+
+## Users
+
+- [sqlite3vfshttp](https://github.com/psanford/sqlite3vfshttp): Query a sqlite database over HTTP using range requests
