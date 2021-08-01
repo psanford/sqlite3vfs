@@ -5,7 +5,7 @@ sqlite3vfs is a Cgo API that allows you to create custom sqlite Virtual File Sys
 
 ## Basic usage
 
-To use, simply implement the VFS and File interfaces. Then register your VFS with sqlite3vfs and include the vfs name when opening the database connection:
+To use, simply implement the [VFS](https://pkg.go.dev/github.com/psanford/sqlite3vfs?utm_source=godoc#VFS) and [File](https://pkg.go.dev/github.com/psanford/sqlite3vfs?utm_source=godoc#File) interfaces. Then register your VFS with sqlite3vfs and include the vfs name when opening the database connection:
 
 ```
 	// create your VFS

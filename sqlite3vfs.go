@@ -2,6 +2,9 @@ package sqlite3vfs
 
 import "time"
 
+// Register a VFS with sqlite. The name specified must be unique and
+// should match the name given when opening the database:
+// `?vfs={{name}}`.
 func RegisterVFS(name string, vfs VFS, opts ...Option) error {
 	var vfsOpts options
 
