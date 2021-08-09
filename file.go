@@ -1,5 +1,7 @@
 package sqlite3vfs
 
+import "fmt"
+
 type File interface {
 	Close() error
 
@@ -19,15 +21,45 @@ type File interface {
 
 	FileSize() (int64, error)
 
-	// Lock increases lock type
+	// Acquire or upgrade a lock.
+	// elock can be one of the following:
+	// LockShared, LockReserved, LockPending, LockExclusive.
+	//
+	// Additional states can be inserted between the current lock level
+	// and the requested lock level. The locking might fail on one of the later
+	// transitions leaving the lock state different from what it started but
+	// still short of its goal.  The following chart shows the allowed
+	// transitions and the inserted intermediate states:
+	//
+	//    UNLOCKED -> SHARED
+	//    SHARED -> RESERVED
+	//    SHARED -> (PENDING) -> EXCLUSIVE
+	//    RESERVED -> (PENDING) -> EXCLUSIVE
+	//    PENDING -> EXCLUSIVE
+	//
+	// This function should only increase a lock level.
+	// See the sqlite source documentation for unixLock for more details.
 	Lock(elock LockType) error
-	// Unlock decreases lock type
+
+	// Lower the locking level on file to eFileLock. eFileLock must be
+	// either NO_LOCK or SHARED_LOCK. If the locking level of the file
+	// descriptor is already at or below the requested locking level,
+	// this routine is a no-op.
 	Unlock(elock LockType) error
-	// Check whether any database connection, either in this process or in some other process, is holding a RESERVED, PENDING, or EXCLUSIVE lock on the file. It returns true if such a lock exists and false otherwise.
+
+	// Check whether any database connection, either in this process or
+	// in some other process, is holding a RESERVED, PENDING, or
+	// EXCLUSIVE lock on the file. It returns true if such a lock exists
+	// and false otherwise.
 	CheckReservedLock() (bool, error)
-	// SectorSize returns the sector size of the device that underlies the file. The sector size is the minimum write that can be performed without disturbing other bytes in the file.
+
+	// SectorSize returns the sector size of the device that underlies
+	// the file. The sector size is the minimum write that can be
+	// performed without disturbing other bytes in the file.
 	SectorSize() int64
-	// DeviceCharacteristics returns a bit vector describing behaviors of the underlying device.
+
+	// DeviceCharacteristics returns a bit vector describing behaviors
+	// of the underlying device.
 	DeviceCharacteristics() DeviceCharacteristic
 }
 
@@ -49,6 +81,23 @@ const (
 	LockPending   LockType = 3
 	LockExclusive LockType = 4
 )
+
+func (lt LockType) String() string {
+	switch lt {
+	case LockNone:
+		return "LockNone"
+	case LockShared:
+		return "LockShared"
+	case LockReserved:
+		return "LockReserved"
+	case LockPending:
+		return "LockPending"
+	case LockExclusive:
+		return "LockExclusive"
+	default:
+		return fmt.Sprintf("LockTypeUnknown<%d>", lt)
+	}
+}
 
 // https://www.sqlite.org/c3ref/c_iocap_atomic.html
 type DeviceCharacteristic int
