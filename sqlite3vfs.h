@@ -45,6 +45,6 @@ int s3vfsCurrentTime(sqlite3_vfs*, double*);
 int s3vfsGetLastError(sqlite3_vfs*, int, char *);
 int s3vfsCurrentTimeInt64(sqlite3_vfs*, sqlite3_int64*);
 
-const sqlite3_io_methods s3vfs_io_methods;
+const extern sqlite3_io_methods s3vfs_io_methods;
 
 #endif /* SQLITE3_VFS */
