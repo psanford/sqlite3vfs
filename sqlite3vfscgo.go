@@ -315,7 +315,7 @@ func goVFSFileSize(cfile *C.sqlite3_file, pSize *C.sqlite3_int64) C.int {
 
 	n, err := file.FileSize()
 	if err != nil {
-		return errToC(GenericError)
+		return errToC(err)
 	}
 
 	*pSize = C.sqlite3_int64(n)
@@ -339,7 +339,7 @@ func goVFSLock(cfile *C.sqlite3_file, eLock C.int) C.int {
 
 	err := file.Lock(LockType(eLock))
 	if err != nil {
-		return errToC(GenericError)
+		return errToC(err)
 	}
 
 	return sqliteOK
@@ -361,7 +361,7 @@ func goVFSUnlock(cfile *C.sqlite3_file, eLock C.int) C.int {
 
 	err := file.Unlock(LockType(eLock))
 	if err != nil {
-		return errToC(GenericError)
+		return errToC(err)
 	}
 
 	return sqliteOK
@@ -383,7 +383,7 @@ func goVFSCheckReservedLock(cfile *C.sqlite3_file, pResOut *C.int) C.int {
 
 	locked, err := file.CheckReservedLock()
 	if err != nil {
-		return errToC(GenericError)
+		return errToC(err)
 	}
 
 	if locked {
