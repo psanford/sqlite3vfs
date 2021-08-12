@@ -28,4 +28,5 @@ A full example can be found in [sqlite3vfs_test.go](sqlite3vfs_test.go).
 
 ## Users
 
-- [sqlite3vfshttp](https://github.com/psanford/sqlite3vfshttp): Query a sqlite database over HTTP using range requests
+- [donutdb](https://github.com/psanford/donutdb): SQLite on top of DynamoDB (read/write)
+- [sqlite3vfshttp](https://github.com/psanford/sqlite3vfshttp): Query a SQLite database over HTTP using range requests
