@@ -1,9 +1,6 @@
 package sqlite3vfs
 
-// It would be nice if we could use the sqlite header from mattn/go-sqlite3
-
 /*
-   #cgo LDFLAGS: -lsqlite3
    #include "sqlite3vfs.h"
    #include <string.h>
    #include <stdlib.h>

@@ -1,8 +1,11 @@
 #ifndef SQLITE3VFS_H
 #define SQLITE3VFS_H
 
+#ifdef SQLITE3VFS_LOADABLE_EXT
+#include "sqlite3ext.h"
+#else
 #include <sqlite3.h>
-
+#endif
 
 typedef struct s3vfsFile {
   sqlite3_file base; /* IO methods */

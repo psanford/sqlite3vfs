@@ -1,5 +1,10 @@
 #include "sqlite3vfs.h"
 #include <stdlib.h>
+#include <stdio.h>
+
+#ifdef SQLITE3VFS_LOADABLE_EXT
+SQLITE_EXTENSION_INIT1
+#endif
 
 extern int goVFSOpen(sqlite3_vfs* vfs, const char * name, sqlite3_file* file, int flags, int *outFlags);
 extern int goVFSDelete(sqlite3_vfs*, const char *zName, int syncDir);
