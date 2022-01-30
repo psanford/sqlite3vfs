@@ -11,7 +11,7 @@ To use, simply implement the [VFS](https://pkg.go.dev/github.com/psanford/sqlite
 	// create your VFS
 	vfs := newTempVFS()
 
-	vfsName := "tpmfs"
+	vfsName := "tmpfs"
 	err := sqlite3vfs.RegisterVFS(vfsName, vfs)
 	if err != nil {
 		panic(err)

@@ -13,7 +13,7 @@ func TestSqlite3vfs(t *testing.T) {
 
 	vfs := newTempVFS()
 
-	vfsName := "tpmfs"
+	vfsName := "tmpfs"
 	err := RegisterVFS(vfsName, vfs)
 	if err != nil {
 		t.Fatal(err)
