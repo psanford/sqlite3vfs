@@ -14,7 +14,7 @@ type TmpVFS struct {
 }
 
 func newTempVFS() *TmpVFS {
-	dir, err := ioutil.TempDir("", "sqlite3vfs_test_tpmvfs")
+	dir, err := ioutil.TempDir("", "sqlite3vfs_test_tmpvfs")
 	if err != nil {
 		panic(err)
 	}
