@@ -1,6 +1,6 @@
 package sqlite3vfs
 
 /*
-   #cgo LDFLAGS: -lsqlite3
+   #cgo LDFLAGS: -Wl,--unresolved-symbols=ignore-in-object-files
 */
 import "C"
