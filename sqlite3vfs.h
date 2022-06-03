@@ -4,7 +4,7 @@
 #ifdef SQLITE3VFS_LOADABLE_EXT
 #include "sqlite3ext.h"
 #else
-#include <sqlite3.h>
+#include "sqlite3-binding.h"
 #endif
 
 typedef struct s3vfsFile {
