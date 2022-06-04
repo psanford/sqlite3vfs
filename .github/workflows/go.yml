@@ -20,6 +20,7 @@ jobs:
 
     - name: Install Zig
       uses: goto-bus-stop/setup-zig@0cee191d0784787b27367e56fb83cde121658bbc
+      with:
         version: 0.9.1
 
     - name: Check out code into the Go module directory
