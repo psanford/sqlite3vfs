@@ -87,6 +87,7 @@ func goVFSDelete(cvfs *C.sqlite3_vfs, zName *C.char, syncDir C.int) C.int {
 // the file given in the second argument is illegal. If SQLITE_OK is
 // returned, then non-zero or zero is written into *pResOut to
 // indicate whether or not the file is accessible.
+//
 //export goVFSAccess
 func goVFSAccess(cvfs *C.sqlite3_vfs, zName *C.char, cflags C.int, pResOut *C.int) C.int {
 	vfs := vfsFromC(cvfs)
@@ -158,6 +159,7 @@ func goVFSSleep(cvfs *C.sqlite3_vfs, microseconds C.int) C.int {
 
 // On success, return SQLITE_OK.  Return SQLITE_ERROR if the time and date
 // cannot be found.
+//
 //export goVFSCurrentTimeInt64
 func goVFSCurrentTimeInt64(cvfs *C.sqlite3_vfs, piNow *C.sqlite3_int64) C.int {
 	vfs := vfsFromC(cvfs)
@@ -209,18 +211,21 @@ func goVFSRead(cfile *C.sqlite3_file, buf unsafe.Pointer, iAmt C.int, iOfst C.sq
 
 	goBuf := (*[1 << 28]byte)(buf)[:int(iAmt):int(iAmt)]
 	n, err := file.ReadAt(goBuf, int64(iOfst))
-	if err == io.EOF {
-		return errToC(IOErrorShortRead)
-	} else if err != nil {
-		return errToC(err)
-	}
-
 	if n < len(goBuf) {
+		if err == nil {
+			// io.ReadAt requires an error if n < len(goBuf)
+			panic("ReadAt invalid semantics: returned n < len(p) but with a nil error")
+		}
 		// If xRead() returns SQLITE_IOERR_SHORT_READ it must also fill in the unread portions of the buffer with zeros.
 		for i := n; i < len(goBuf); i++ {
 			goBuf[i] = 0
 		}
+	}
+
+	if err == io.EOF {
 		return errToC(IOErrorShortRead)
+	} else if err != nil {
+		return errToC(err)
 	}
 
 	return sqliteOK
