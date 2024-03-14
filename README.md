@@ -36,3 +36,4 @@ To build as a loadable module, set the `-tags SQLITE3VFS_LOADABLE_EXT` build tag
 
 - [DonutDB](https://github.com/psanford/donutdb): SQLite on top of DynamoDB (read/write)
 - [sqlite3vfshttp](https://github.com/psanford/sqlite3vfshttp): Query a SQLite database over HTTP using range requests
+- [sqlitezstd](https://github.com/jtarchie/sqlitezstd): Query a SQLite database that had been compressed with zstd seekable
