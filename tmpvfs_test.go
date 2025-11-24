@@ -165,3 +165,41 @@ func (tf *TmpFile) SectorSize() int64 {
 func (tf *TmpFile) DeviceCharacteristics() DeviceCharacteristic {
 	return 0
 }
+
+type TmpVFSWithPragma struct {
+	*TmpVFS
+}
+
+func newTempVFSWithPragma() *TmpVFSWithPragma {
+	return &TmpVFSWithPragma{
+		TmpVFS: newTempVFS(),
+	}
+}
+
+func (vfs *TmpVFSWithPragma) Open(name string, flags OpenFlag) (File, OpenFlag, error) {
+	file, outFlags, err := vfs.TmpVFS.Open(name, flags)
+	if err != nil {
+		return nil, outFlags, err
+	}
+	tmpFile, ok := file.(*TmpFile)
+	if !ok {
+		return file, outFlags, nil
+	}
+	return &TmpFileWithPragma{TmpFile: tmpFile}, outFlags, nil
+}
+
+type TmpFileWithPragma struct {
+	*TmpFile
+	customValue string
+}
+
+func (tf *TmpFileWithPragma) FileControl(op int, pragmaName string, pragmaValue *string) (*string, error) {
+	if pragmaName == "test_pragma" {
+		if pragmaValue != nil {
+			tf.customValue = *pragmaValue
+			return nil, nil
+		}
+		return &tf.customValue, nil
+	}
+	return nil, nil
+}
