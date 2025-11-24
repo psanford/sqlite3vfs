@@ -429,6 +429,58 @@ func goVFSDeviceCharacteristics(cfile *C.sqlite3_file) C.int {
 	return C.int(file.DeviceCharacteristics())
 }
 
+//export goVFSFileControl
+func goVFSFileControl(cfile *C.sqlite3_file, op C.int, pArg unsafe.Pointer) C.int {
+	s3vfsFile := (*C.s3vfsFile)(unsafe.Pointer(cfile))
+
+	fileID := uint64(s3vfsFile.id)
+
+	fileMux.Lock()
+	file := fileMap[fileID]
+	fileMux.Unlock()
+
+	if file == nil {
+		return C.SQLITE_NOTFOUND
+	}
+
+	const SQLITE_FCNTL_PRAGMA = 14
+
+	if op == C.int(SQLITE_FCNTL_PRAGMA) {
+		fc, ok := file.(FileController)
+		if !ok {
+			return C.SQLITE_NOTFOUND
+		}
+
+		azArg := (**C.char)(pArg)
+		ptrSize := unsafe.Sizeof(azArg)
+
+		pragmaNamePtr := *(**C.char)(unsafe.Pointer(uintptr(pArg) + ptrSize))
+		if pragmaNamePtr == nil {
+			return C.SQLITE_NOTFOUND
+		}
+		pragmaName := C.GoString(pragmaNamePtr)
+
+		var pragmaValue *string
+		pragmaValuePtr := *(**C.char)(unsafe.Pointer(uintptr(pArg) + 2*ptrSize))
+		if pragmaValuePtr != nil {
+			val := C.GoString(pragmaValuePtr)
+			pragmaValue = &val
+		}
+
+		result, err := fc.FileControl(int(op), pragmaName, pragmaValue)
+		if err != nil {
+			return errToC(err)
+		}
+
+		if result != nil {
+			*azArg = C.CString(*result)
+		}
+		return C.SQLITE_OK
+	}
+
+	return C.SQLITE_NOTFOUND
+}
+
 func vfsFromC(cvfs *C.sqlite3_vfs) ExtendedVFSv1 {
 	vfsName := C.GoString(cvfs.zName)
 	return vfsMap[vfsName]

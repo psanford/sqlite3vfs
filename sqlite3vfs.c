@@ -25,6 +25,7 @@ extern int goVFSUnlock(sqlite3_file*, int eLock);
 extern int goVFSCheckReservedLock(sqlite3_file* file, int *pResOut);
 extern int goVFSSectorSize(sqlite3_file* file);
 extern int goVFSDeviceCharacteristics(sqlite3_file* file);
+extern int goVFSFileControl(sqlite3_file* file, int op, void *pArg);
 
 
 int s3vfsNew(char* name, int maxPathName) {
@@ -143,7 +144,7 @@ int s3vfsDeviceCharacteristics(sqlite3_file* file) {
 }
 
 int s3vfsFileControl(sqlite3_file *pFile, int op, void *pArg){
-  return SQLITE_NOTFOUND;
+  return goVFSFileControl(pFile, op, pArg);
 }
 
 const sqlite3_io_methods s3vfs_io_methods = {

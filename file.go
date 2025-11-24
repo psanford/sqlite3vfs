@@ -63,6 +63,18 @@ type File interface {
 	DeviceCharacteristics() DeviceCharacteristic
 }
 
+// FileController is an optional interface that File implementations
+// can implement to handle file control operations like PRAGMA commands.
+type FileController interface {
+	// FileControl handles file control operations.
+	// For SQLITE_FCNTL_PRAGMA operations:
+	//   - pragmaName contains the pragma name (e.g., "litestream_time")
+	//   - pragmaValue contains the pragma value (nil for queries)
+	// Returns the result string (for queries) and any error.
+	// Return nil error with nil result for successful operations with no result.
+	FileControl(op int, pragmaName string, pragmaValue *string) (*string, error)
+}
+
 type SyncType int
 
 const (
