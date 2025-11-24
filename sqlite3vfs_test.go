@@ -123,3 +123,53 @@ type FooRow struct {
 	ID    string
 	Title string
 }
+
+func TestFileControlPragma(t *testing.T) {
+	vfs := newTempVFSWithPragma()
+
+	vfsName := "tmpfs_pragma"
+	err := RegisterVFS(vfsName, vfs)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	db, err := sql.Open("sqlite3", fmt.Sprintf("pragma_test.db?vfs=%s", vfsName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS test (id INTEGER PRIMARY KEY)`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = db.Exec(`PRAGMA test_pragma = 'hello_world'`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var result string
+	err = db.QueryRow(`PRAGMA test_pragma`).Scan(&result)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result != "hello_world" {
+		t.Fatalf("expected 'hello_world', got '%s'", result)
+	}
+
+	_, err = db.Exec(`PRAGMA test_pragma = 'updated_value'`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = db.QueryRow(`PRAGMA test_pragma`).Scan(&result)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if result != "updated_value" {
+		t.Fatalf("expected 'updated_value', got '%s'", result)
+	}
+}
