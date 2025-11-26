@@ -473,7 +473,9 @@ func goVFSFileControl(cfile *C.sqlite3_file, op C.int, pArg unsafe.Pointer) C.in
 		}
 
 		if result != nil {
-			*azArg = C.CString(*result)
+			cResult := C.CString(*result)
+			*azArg = C.s3vfsSqlite3Mprintf(cResult)
+			C.free(unsafe.Pointer(cResult))
 		}
 		return C.SQLITE_OK
 	}

@@ -147,6 +147,10 @@ int s3vfsFileControl(sqlite3_file *pFile, int op, void *pArg){
   return goVFSFileControl(pFile, op, pArg);
 }
 
+char* s3vfsSqlite3Mprintf(const char* str) {
+  return sqlite3_mprintf("%s", str);
+}
+
 const sqlite3_io_methods s3vfs_io_methods = {
   1,                               /* iVersion */
   s3vfsClose,                      /* xClose */
