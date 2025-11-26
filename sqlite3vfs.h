@@ -50,4 +50,6 @@ int s3vfsCurrentTimeInt64(sqlite3_vfs*, sqlite3_int64*);
 
 const extern sqlite3_io_methods s3vfs_io_methods;
 
+char* s3vfsSqlite3Mprintf(const char* str);
+
 #endif /* SQLITE3_VFS */
