@@ -37,10 +37,20 @@ func newVFS(name string, goVFS ExtendedVFSv1, maxPathName int) error {
 func goVFSOpen(cvfs *C.sqlite3_vfs, name *C.char, retFile *C.sqlite3_file, flags C.int, outFlags *C.int) C.int {
 
 	fileName := C.GoString(name)
+	params := uriParamsFromC(name)
 
 	vfs := vfsFromC(cvfs)
 
-	file, retFlags, err := vfs.Open(fileName, OpenFlag(flags))
+	var (
+		file     File
+		retFlags OpenFlag
+		err      error
+	)
+	if opener, ok := vfs.(URIOpener); ok {
+		file, retFlags, err = opener.OpenURI(fileName, params, OpenFlag(flags))
+	} else {
+		file, retFlags, err = vfs.Open(fileName, OpenFlag(flags))
+	}
 	if err != nil {
 		return errToC(err)
 	}
@@ -493,4 +503,28 @@ func errToC(err error) C.int {
 		return C.int(e.code)
 	}
 	return C.int(GenericError.code)
+}
+
+func uriParamsFromC(name *C.char) map[string]string {
+	var uriParameters map[string]string
+	for i := 0; ; i++ {
+		keyPtr := C.s3vfsURIKey(name, C.int(i))
+		if keyPtr == nil {
+			break
+		}
+
+		if uriParameters == nil {
+			uriParameters = make(map[string]string)
+		}
+
+		key := C.GoString(keyPtr)
+		valuePtr := C.s3vfsURIParameter(name, keyPtr)
+		if valuePtr == nil {
+			uriParameters[key] = ""
+			continue
+		}
+		uriParameters[key] = C.GoString(valuePtr)
+	}
+
+	return uriParameters
 }

@@ -151,6 +151,14 @@ char* s3vfsSqlite3Mprintf(const char* str) {
   return sqlite3_mprintf("%s", str);
 }
 
+const char* s3vfsURIKey(const char* zName, int n) {
+  return zName == NULL ? NULL : sqlite3_uri_key(zName, n);
+}
+
+const char* s3vfsURIParameter(const char* zName, const char* zParam) {
+  return zName == NULL ? NULL : sqlite3_uri_parameter(zName, zParam);
+}
+
 const sqlite3_io_methods s3vfs_io_methods = {
   1,                               /* iVersion */
   s3vfsClose,                      /* xClose */

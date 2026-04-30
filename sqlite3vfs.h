@@ -52,4 +52,7 @@ const extern sqlite3_io_methods s3vfs_io_methods;
 
 char* s3vfsSqlite3Mprintf(const char* str);
 
+const char* s3vfsURIKey(const char* zName, int n);
+const char* s3vfsURIParameter(const char* zName, const char* zParam);
+
 #endif /* SQLITE3_VFS */

@@ -44,6 +44,13 @@ type VFS interface {
 	FullPathname(name string) string
 }
 
+// URIOpener is an optional interface that VFS implementations can implement
+// to receive URI parameters supplied in the filename.
+type URIOpener interface {
+	// OpenURI opens a file with URI parameters.
+	OpenURI(name string, params map[string]string, flags OpenFlag) (File, OpenFlag, error)
+}
+
 type ExtendedVFSv1 interface {
 	VFS
 

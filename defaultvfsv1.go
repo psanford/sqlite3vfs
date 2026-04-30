@@ -9,6 +9,13 @@ type defaultVFSv1 struct {
 	VFS
 }
 
+func (vfs *defaultVFSv1) OpenURI(name string, params map[string]string, flags OpenFlag) (File, OpenFlag, error) {
+	if opener, ok := vfs.VFS.(URIOpener); ok {
+		return opener.OpenURI(name, params, flags)
+	}
+	return vfs.Open(name, flags)
+}
+
 func (vfs *defaultVFSv1) Randomness(n []byte) int {
 	i, err := rand.Read(n)
 	if err != nil {
