@@ -15,6 +15,7 @@ import (
 )
 
 var (
+	vfsMux sync.RWMutex
 	vfsMap = make(map[string]ExtendedVFSv1)
 
 	fileMux    sync.Mutex
@@ -23,7 +24,9 @@ var (
 )
 
 func newVFS(name string, goVFS ExtendedVFSv1, maxPathName int) error {
+	vfsMux.Lock()
 	vfsMap[name] = goVFS
+	vfsMux.Unlock()
 
 	rc := C.s3vfsNew(C.CString(name), C.int(maxPathName))
 	if rc == C.SQLITE_OK {
@@ -495,7 +498,10 @@ func goVFSFileControl(cfile *C.sqlite3_file, op C.int, pArg unsafe.Pointer) C.in
 
 func vfsFromC(cvfs *C.sqlite3_vfs) ExtendedVFSv1 {
 	vfsName := C.GoString(cvfs.zName)
-	return vfsMap[vfsName]
+	vfsMux.RLock()
+	vfs := vfsMap[vfsName]
+	vfsMux.RUnlock()
+	return vfs
 }
 
 func errToC(err error) C.int {
