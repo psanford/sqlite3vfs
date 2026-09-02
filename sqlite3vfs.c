@@ -1,6 +1,7 @@
 #include "sqlite3vfs.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef SQLITE3VFS_LOADABLE_EXT
 SQLITE_EXTENSION_INIT1
@@ -174,3 +175,95 @@ const sqlite3_io_methods s3vfs_io_methods = {
   s3vfsSectorSize,                 /* xSectorSize */
   s3vfsDeviceCharacteristics,      /* xDeviceCharacteristics */
 };
+
+/* Wrappers making a registered sqlite3_vfs's function pointers callable from
+** Go, so a Go VFS can delegate the files it cannot serve. */
+
+sqlite3_vfs* s3vfsFind(const char* zName) {
+  return sqlite3_vfs_find(zName);
+}
+
+int s3vfsBaseOsFileSize(sqlite3_vfs* vfs) {
+  return vfs->szOsFile;
+}
+
+int s3vfsBaseMaxPathname(sqlite3_vfs* vfs) {
+  return vfs->mxPathname;
+}
+
+/* sqlite3_malloc, not Go memory: sqlite holds this pointer for the life of
+** the file. */
+sqlite3_file* s3vfsBaseFileAlloc(sqlite3_vfs* vfs) {
+  sqlite3_file* file = (sqlite3_file*)sqlite3_malloc(vfs->szOsFile);
+  if (file != NULL) {
+    memset(file, 0, vfs->szOsFile);
+  }
+  return file;
+}
+
+void s3vfsBaseFileFree(sqlite3_file* file) {
+  sqlite3_free(file);
+}
+
+int s3vfsBaseOpen(sqlite3_vfs* vfs, const char* zName, sqlite3_file* file, int flags, int* outFlags) {
+  return vfs->xOpen(vfs, zName, file, flags, outFlags);
+}
+
+int s3vfsBaseDelete(sqlite3_vfs* vfs, const char* zName, int syncDir) {
+  return vfs->xDelete(vfs, zName, syncDir);
+}
+
+int s3vfsBaseAccess(sqlite3_vfs* vfs, const char* zName, int flags, int* pResOut) {
+  return vfs->xAccess(vfs, zName, flags, pResOut);
+}
+
+int s3vfsBaseFullPathname(sqlite3_vfs* vfs, const char* zName, int nOut, char* zOut) {
+  return vfs->xFullPathname(vfs, zName, nOut, zOut);
+}
+
+int s3vfsBaseClose(sqlite3_file* file) {
+  if (file->pMethods == NULL) {
+    return SQLITE_OK;
+  }
+  return file->pMethods->xClose(file);
+}
+
+int s3vfsBaseRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst) {
+  return file->pMethods->xRead(file, buf, iAmt, iOfst);
+}
+
+int s3vfsBaseWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst) {
+  return file->pMethods->xWrite(file, buf, iAmt, iOfst);
+}
+
+int s3vfsBaseTruncate(sqlite3_file* file, sqlite3_int64 size) {
+  return file->pMethods->xTruncate(file, size);
+}
+
+int s3vfsBaseSync(sqlite3_file* file, int flags) {
+  return file->pMethods->xSync(file, flags);
+}
+
+int s3vfsBaseFileSize(sqlite3_file* file, sqlite3_int64* pSize) {
+  return file->pMethods->xFileSize(file, pSize);
+}
+
+int s3vfsBaseLock(sqlite3_file* file, int eLock) {
+  return file->pMethods->xLock(file, eLock);
+}
+
+int s3vfsBaseUnlock(sqlite3_file* file, int eLock) {
+  return file->pMethods->xUnlock(file, eLock);
+}
+
+int s3vfsBaseCheckReservedLock(sqlite3_file* file, int* pResOut) {
+  return file->pMethods->xCheckReservedLock(file, pResOut);
+}
+
+int s3vfsBaseSectorSize(sqlite3_file* file) {
+  return file->pMethods->xSectorSize(file);
+}
+
+int s3vfsBaseDeviceCharacteristics(sqlite3_file* file) {
+  return file->pMethods->xDeviceCharacteristics(file);
+}
