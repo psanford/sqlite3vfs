@@ -17,9 +17,10 @@ import (
 var (
 	vfsMap = make(map[string]ExtendedVFSv1)
 
-	fileMux    sync.Mutex
-	nextFileID uint64
-	fileMap    = make(map[uint64]File)
+	fileMux sync.Mutex
+	// Starts at 1 so a zeroed s3vfsFile's id can never name a live file.
+	nextFileID uint64 = 1
+	fileMap           = make(map[uint64]File)
 )
 
 func newVFS(name string, goVFS ExtendedVFSv1, maxPathName int) error {

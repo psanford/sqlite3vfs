@@ -61,6 +61,13 @@ int s3vfsNew(char* name, int maxPathName) {
 
 int s3vfsOpen(sqlite3_vfs* vfs, const char * name, sqlite3_file* file, int flags, int *outFlags) {
   int ret = goVFSOpen(vfs, name, file, flags, outFlags);
+  /* sqlite calls xClose on a failed open whenever pMethods is set, and a
+  ** failed goVFSOpen never registered this file -- its zeroed id would alias
+  ** another live file. NULL means there is nothing to close. */
+  if (ret != SQLITE_OK) {
+    file->pMethods = 0;
+    return ret;
+  }
   file->pMethods = &s3vfs_io_methods;
   return ret;
 }
