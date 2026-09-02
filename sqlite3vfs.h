@@ -52,6 +52,31 @@ const extern sqlite3_io_methods s3vfs_io_methods;
 
 char* s3vfsSqlite3Mprintf(const char* str);
 
+/* Wrappers over a registered sqlite3_vfs's function pointers, so a Go VFS can
+** delegate work (temp files, most commonly) to the VFS underneath it. */
+sqlite3_vfs* s3vfsFind(const char* zName);
+int s3vfsBaseOsFileSize(sqlite3_vfs* vfs);
+int s3vfsBaseMaxPathname(sqlite3_vfs* vfs);
+sqlite3_file* s3vfsBaseFileAlloc(sqlite3_vfs* vfs);
+void s3vfsBaseFileFree(sqlite3_file* file);
+
+int s3vfsBaseOpen(sqlite3_vfs* vfs, const char* zName, sqlite3_file* file, int flags, int* outFlags);
+int s3vfsBaseDelete(sqlite3_vfs* vfs, const char* zName, int syncDir);
+int s3vfsBaseAccess(sqlite3_vfs* vfs, const char* zName, int flags, int* pResOut);
+int s3vfsBaseFullPathname(sqlite3_vfs* vfs, const char* zName, int nOut, char* zOut);
+
+int s3vfsBaseClose(sqlite3_file* file);
+int s3vfsBaseRead(sqlite3_file* file, void* buf, int iAmt, sqlite3_int64 iOfst);
+int s3vfsBaseWrite(sqlite3_file* file, const void* buf, int iAmt, sqlite3_int64 iOfst);
+int s3vfsBaseTruncate(sqlite3_file* file, sqlite3_int64 size);
+int s3vfsBaseSync(sqlite3_file* file, int flags);
+int s3vfsBaseFileSize(sqlite3_file* file, sqlite3_int64* pSize);
+int s3vfsBaseLock(sqlite3_file* file, int eLock);
+int s3vfsBaseUnlock(sqlite3_file* file, int eLock);
+int s3vfsBaseCheckReservedLock(sqlite3_file* file, int* pResOut);
+int s3vfsBaseSectorSize(sqlite3_file* file);
+int s3vfsBaseDeviceCharacteristics(sqlite3_file* file);
+
 const char* s3vfsURIKey(const char* zName, int n);
 const char* s3vfsURIParameter(const char* zName, const char* zParam);
 
